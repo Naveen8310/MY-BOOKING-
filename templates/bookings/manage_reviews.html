@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Manage Reviews{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4"><i class="fas fa-comments me-2"></i>Manage Reviews</h2>
+    
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr><th>ID</th><th>Venue</th><th>User</th><th>Rating</th><th>Comment</th><th>Status</th><th>Actions</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for review in reviews %}
+                        <tr>
+                            <td>{{ review.id }}</td>
+                            <td>{{ review.venue.name }}</td>
+                            <td>{{ review.user.name }}</td>
+                            <td>
+                                {% for i in "12345"|make_list %}
+                                    {% if forloop.counter <= review.rating %}⭐{% else %}☆{% endif %}
+                                {% endfor %}
+                            </td>
+                            <td>{{ review.comment|truncatechars:50 }}</td>
+                            <td>
+                                {% if review.is_approved %}
+                                    <span class="badge bg-success">Approved</span>
+                                {% else %}
+                                    <span class="badge bg-warning">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if not review.is_approved %}
+                                <a href="{% url 'approve_review' review.id %}" class="btn btn-sm btn-success">
+                                    <i class="fas fa-check"></i> Approve
+                                </a>
+                                {% endif %}
+                                <a href="{% url 'delete_review' review.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Delete this review?')">
+                                    <i class="fas fa-trash"></i> Delete
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="7" class="text-center">No reviews yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

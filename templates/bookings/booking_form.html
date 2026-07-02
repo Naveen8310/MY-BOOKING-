@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block title %}Book {{ venue.name }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <h2 class="text-center">
+            <i class="fas fa-calendar-plus me-2"></i>Book {{ venue.name }}
+        </h2>
+        
+        <form method="post" id="bookingForm">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                <label class="form-label">
+                    <i class="fas fa-calendar me-1"></i>Event Date *
+                </label>
+                <input type="date" name="event_date" class="form-control" required
+                       value="{{ form_data.event_date|default:'' }}">
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">
+                        <i class="fas fa-clock me-1"></i>Start Time *
+                    </label>
+                    <input type="time" name="start_time" class="form-control" required
+                           value="{{ form_data.start_time|default:'' }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">
+                        <i class="fas fa-clock me-1"></i>End Time *
+                    </label>
+                    <input type="time" name="end_time" class="form-control" required
+                           value="{{ form_data.end_time|default:'' }}">
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">
+                    <i class="fas fa-users me-1"></i>Number of Guests *
+                </label>
+                <input type="number" name="guests" class="form-control" 
+                       placeholder="Enter number of guests" required min="1" 
+                       max="{{ venue.capacity }}"
+                       value="{{ form_data.guests|default:'' }}">
+                <small class="text-muted">Maximum capacity: {{ venue.capacity }} guests</small>
+            </div>
+            
+            <div class="mb-4">
+                <label class="form-label">
+                    <i class="fas fa-comment me-1"></i>Special Requests (Optional)
+                </label>
+                <textarea name="special_requests" class="form-control" rows="4" 
+                          placeholder="Any special requirements...">{{ form_data.special_requests|default:'' }}</textarea>
+            </div>
+            
+            <input type="hidden" name="venue" value="{{ venue.pk }}">
+            
+            <button type="submit" class="btn btn-success btn-lg w-100">
+                <i class="fas fa-check-circle me-2"></i>Confirm Booking
+            </button>
+        </form>
+        
+        <div class="text-center mt-3">
+            <a href="{% url 'venue_detail' venue.pk %}" class="btn btn-outline-light">
+                <i class="fas fa-arrow-left me-2"></i>Back to Venue Details
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

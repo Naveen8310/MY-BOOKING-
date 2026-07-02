@@ -1,0 +1,421 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard | My Booking{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-sidebar {
+        background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+        min-height: 100vh;
+        padding: 20px;
+        color: white;
+    }
+    
+    .admin-sidebar .nav-link {
+        color: rgba(255,255,255,0.8);
+        padding: 12px 20px;
+        border-radius: 10px;
+        margin: 5px 0;
+        transition: all 0.3s;
+    }
+    
+    .admin-sidebar .nav-link:hover,
+    .admin-sidebar .nav-link.active {
+        background: rgba(255,255,255,0.1);
+        color: white;
+        transform: translateX(5px);
+    }
+    
+    .stat-card {
+        border-radius: 15px;
+        padding: 25px;
+        color: white;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        transition: transform 0.3s;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .stat-card .icon {
+        font-size: 2.5rem;
+        opacity: 0.8;
+    }
+    
+    .stat-card .number {
+        font-size: 2rem;
+        font-weight: 700;
+    }
+    
+    .bg-gradient-primary { background: linear-gradient(135deg, #667eea, #764ba2); }
+    .bg-gradient-success { background: linear-gradient(135deg, #11998e, #38ef7d); }
+    .bg-gradient-warning { background: linear-gradient(135deg, #f093fb, #f5576c); }
+    .bg-gradient-info { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+    .bg-gradient-danger { background: linear-gradient(135deg, #fa709a, #fee140); color: #333; }
+    
+    .venue-table th {
+        background: #1a1a2e;
+        color: white;
+        border: none;
+    }
+    
+    .venue-image {
+        width: 80px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+    
+    .modal-content {
+        background: linear-gradient(135deg, #1a1a2e, #16213e);
+        color: white;
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .modal-header {
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .modal-footer {
+        border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .form-control, .form-select {
+        background: rgba(255,255,255,0.1);
+        border: 1px solid rgba(255,255,255,0.2);
+        color: white;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        background: rgba(255,255,255,0.15);
+        border-color: #667eea;
+        color: white;
+        box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Sidebar -->
+    <div class="col-md-3">
+        <div class="admin-sidebar rounded-3">
+            <h4 class="mb-4">
+                <i class="fas fa-crown me-2 text-warning"></i>My Booking Admin
+            </h4>
+            
+            <nav class="nav flex-column">
+                <a class="nav-link active" href="#dashboard-section">
+                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                </a>
+                <a class="nav-link" href="#venues-section">
+                    <i class="fas fa-building me-2"></i>Venues
+                </a>
+                <a class="nav-link" href="{% url 'manage_bookings' %}">
+                    <i class="fas fa-calendar-check me-2"></i>Bookings
+                </a>
+                <a class="nav-link" href="{% url 'home' %}">
+                    <i class="fas fa-home me-2"></i>Visit Site
+                </a>
+                <a class="nav-link text-danger" href="{% url 'logout' %}">
+                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                </a>
+            </nav>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="col-md-9">
+        <h2 class="mb-4">
+            <i class="fas fa-chart-line me-2"></i>Dashboard Overview
+        </h2>
+        
+        <!-- Statistics Cards -->
+        <div class="row g-4 mb-4" id="dashboard-section">
+            <div class="col-md-4">
+                <div class="stat-card bg-gradient-primary">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="number">{{ total_venues }}</div>
+                            <div>Total Venues</div>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-building"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="stat-card bg-gradient-success">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="number">{{ total_bookings }}</div>
+                            <div>Total Bookings</div>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="stat-card bg-gradient-warning">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="number">{{ confirmed_bookings }}</div>
+                            <div>Confirmed</div>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="stat-card bg-gradient-info">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="number">{{ pending_bookings }}</div>
+                            <div>Pending</div>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="stat-card bg-gradient-danger">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="number">{{ cancelled_bookings }}</div>
+                            <div>Cancelled</div>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-times-circle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="stat-card" style="background: linear-gradient(135deg, #667eea, #f093fb);">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="number">₹{{ total_revenue }}</div>
+                            <div>Revenue</div>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-rupee-sign"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Venues Section -->
+        <div class="card bg-dark text-white border-0 rounded-4 shadow-lg p-4 mb-4" id="venues-section">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3><i class="fas fa-building me-2"></i>Manage Venues</h3>
+                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addVenueModal">
+                    <i class="fas fa-plus me-1"></i>Add Venue
+                </button>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table table-dark table-hover venue-table">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Capacity</th>
+                            <th>Location</th>
+                            <th>Price/hr</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for venue in venues %}
+                        <tr>
+                            <td>
+                                {% if venue.image %}
+                                    <img src="{{ venue.image.url }}" alt="{{ venue.name }}" class="venue-image">
+                                {% else %}
+                                    <div class="venue-image bg-secondary d-flex align-items-center justify-content-center">
+                                        <i class="fas fa-image text-white-50"></i>
+                                    </div>
+                                {% endif %}
+                            </td>
+                            <td><strong>{{ venue.name }}</strong></td>
+                            <td>{{ venue.get_venue_type_display }}</td>
+                            <td>{{ venue.capacity }}</td>
+                            <td>{{ venue.location }}</td>
+                            <td>₹{{ venue.price_per_hour }}</td>
+                            <td>
+                                {% if venue.is_available %}
+                                    <span class="badge bg-success">Available</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Not Available</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'edit_venue' venue.pk %}" class="btn btn-sm btn-warning me-1">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'delete_venue' venue.pk %}" class="btn btn-sm btn-danger" 
+                                   onclick="return confirm('Are you sure you want to delete {{ venue.name }}?')">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center py-4">No venues found. Add your first venue!</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Recent Bookings -->
+        <div class="card bg-dark text-white border-0 rounded-4 shadow-lg p-4">
+            <h3 class="mb-4"><i class="fas fa-clock me-2"></i>Recent Bookings</h3>
+            
+            <div class="table-responsive">
+                <table class="table table-dark table-hover">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Customer</th>
+                            <th>Venue</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in recent_bookings %}
+                        <tr>
+                            <td>{{ booking.pk }}</td>
+                            <td>{{ booking.user.name }}</td>
+                            <td>{{ booking.venue.name }}</td>
+                            <td>{{ booking.event_date|date:"M d, Y" }}</td>
+                            <td>
+                                {% if booking.status == 'confirmed' %}
+                                    <span class="badge bg-success">Confirmed</span>
+                                {% elif booking.status == 'paid' %}
+                                    <span class="badge bg-info">Paid - Awaiting Confirmation</span>
+                                {% elif booking.status == 'pending' %}
+                                    <span class="badge bg-warning">Pending</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Cancelled</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if booking.status == 'paid' %}
+                                    <a href="{% url 'confirm_payment' booking.pk %}" class="btn btn-sm btn-success">
+                                        <i class="fas fa-check me-1"></i>Confirm
+                                    </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">No bookings yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <a href="{% url 'manage_bookings' %}" class="btn btn-outline-light mt-3">
+                <i class="fas fa-list me-1"></i>View All Bookings
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Add Venue Modal -->
+<div class="modal fade" id="addVenueModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-plus-circle me-2"></i>Add New Venue
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            
+            <form method="POST" action="{% url 'add_venue' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Venue Name *</label>
+                            <input type="text" name="name" class="form-control" required placeholder="e.g., Grand Ballroom">
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label class="form-label">Venue Type *</label>
+                            <select name="venue_type" class="form-select" required>
+                                <option value="">Select Type</option>
+                                <option value="wedding_hall">Wedding Hall</option>
+                                <option value="fest">Fest</option>
+                                <option value="dining_table">Dining Table</option>
+                                <option value="vip_table">VIP Table</option>
+                                <option value="conference_room">Conference Room</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <label class="form-label">Capacity *</label>
+                            <input type="number" name="capacity" class="form-control" required placeholder="Max guests">
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <label class="form-label">Location *</label>
+                            <input type="text" name="location" class="form-control" required placeholder="City, Area">
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <label class="form-label">Price per Hour (₹)</label>
+                            <input type="number" name="price_per_hour" class="form-control" step="0.01" placeholder="0.00">
+                        </div>
+                        
+                        <div class="col-12">
+                            <label class="form-label">Description</label>
+                            <textarea name="description" class="form-control" rows="3" placeholder="Describe the venue..."></textarea>
+                        </div>
+                        
+                        <div class="col-12">
+                            <label class="form-label">Venue Image</label>
+                            <input type="file" name="image" class="form-control" accept="image/*">
+                        </div>
+                        
+                        <div class="col-12">
+                            <div class="form-check">
+                                <input type="checkbox" name="is_available" class="form-check-input" checked>
+                                <label class="form-check-label">Available for booking</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save me-1"></i>Save Venue
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

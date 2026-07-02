@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block title %}Available Venues{% endblock %}
+
+{% block content %}
+<div class="text-center mb-5">
+    <h1>🎉 Find Your Perfect Venue</h1>
+    <p class="text-white lead">Book wedding halls, conference rooms, VIP tables, and more!</p>
+</div>
+
+<div class="row">
+    {% for venue in venues %}
+    <div class="col-lg-4 col-md-6 mb-4">
+        <div class="card h-100">
+            <!-- VENUE IMAGE -->
+            {% if venue.image %}
+                <img src="{{ venue.image.url }}" class="card-img-top" alt="{{ venue.name }}" style="height: 200px; object-fit: cover;">
+            {% else %}
+                <img src="/static/images/default-venue.jpg" class="card-img-top" alt="Default Venue" style="height: 200px; object-fit: cover;">
+            {% endif %}
+
+            <div class="card-body">
+                <span class="venue-type {{ venue.venue_type }}">
+                    {% if venue.venue_type == 'wedding_hall' %}
+                        <i class="fas fa-heart me-1"></i>Wedding Hall
+                    {% elif venue.venue_type == 'fest' %}
+                        <i class="fas fa-music me-1"></i>Fest
+                    {% elif venue.venue_type == 'dining_table' %}
+                        <i class="fas fa-utensils me-1"></i>Dining Table
+                    {% elif venue.venue_type == 'vip_table' %}
+                        <i class="fas fa-star me-1"></i>VIP Table
+                    {% elif venue.venue_type == 'conference_room' %}
+                        <i class="fas fa-briefcase me-1"></i>Conference Room
+                    {% endif %}
+                </span>
+                
+                <h5 class="card-title">{{ venue.name }}</h5>
+                
+                <p class="card-text">
+                    <i class="fas fa-map-marker-alt text-danger me-2"></i>{{ venue.location }}<br>
+                    <i class="fas fa-users text-primary me-2"></i>Capacity: {{ venue.capacity }} guests<br>
+                </p>
+                <p class="card-text text-muted">{{ venue.description|truncatewords:20 }}</p>
+                
+                <div class="price-tag">
+                    <i class="fas fa-tag me-1"></i>
+                    {% if venue.price_per_hour > 0 %}
+                        ₹{{ venue.price_per_hour }}/hour
+                    {% else %}
+                        Free
+                    {% endif %}
+                </div>
+                
+                <a href="{% url 'venue_detail' venue.pk %}" class="btn btn-primary w-100 mt-3">
+                    <i class="fas fa-info-circle me-2"></i>View Details & Book
+                </a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center">
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>No venues available at the moment. Please check back later!
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- WhatsApp Consultation Section (only on homepage) -->
+<div style="background: linear-gradient(135deg, #25D366 0%, #128C7E 100%); border-radius: 30px; padding: 3rem 2rem; margin: 3rem 0; text-align: center; color: white;">
+    <i class="fab fa-whatsapp" style="font-size: 4rem; margin-bottom: 1rem;"></i>
+    <h3 style="font-size: 1.8rem; font-weight: 700; margin-bottom: 0.5rem;">Chat with Our Booking Experts</h3>
+    <p style="font-size: 1.1rem; max-width: 600px; margin: 0 auto 1.5rem auto; opacity: 0.95;">
+        Get instant help with venue selection, pricing, availability, and special requests.
+    </p>
+    <a href="https://wa.me/918310337340?text=Hi%21%20I%27m%20interested%20in%20booking%20a%20venue.%20Can%20you%20help%20me%3F" 
+       target="_blank" 
+       rel="noopener noreferrer" 
+       style="display: inline-flex; align-items: center; gap: 0.5rem; background: white; color: #25D366; padding: 0.75rem 2rem; border-radius: 50px; font-weight: 700; font-size: 1rem; text-decoration: none; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: transform 0.2s, box-shadow 0.2s;">
+        <i class="fab fa-whatsapp"></i> Chat on WhatsApp
+    </a>
+    <style>
+        /* Hover effect for the WhatsApp button */
+        .whatsapp-btn-home:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+        }
+    </style>
+</div>
+{% endblock %}

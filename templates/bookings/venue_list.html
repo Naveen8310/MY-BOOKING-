@@ -1,0 +1,462 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}All Venues | Book Your Perfect Space{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ========== GLOBAL STYLES (from your request) ========== */
+    :root {
+        --primary-color: #4e54c8;
+        --secondary-color: #8f94fb;
+        --dark-color: #2c3e50;
+        --light-color: #f8f9fa;
+        --success-color: #27ae60;
+        --danger-color: #e74c3c;
+        --warning-color: #f39c12;
+        --info-color: #3498db;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #191b24 0%, #764ba2 100%);
+        min-height: 100vh;
+    }
+
+    /* ========== NAVBAR OVERRIDES ========== */
+    .navbar {
+        background: linear-gradient(135deg, var(--dark-color) 0%, #34495e 100%) !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        padding: 1rem 0;
+    }
+
+    .navbar-brand {
+        font-size: 1.8rem;
+        font-weight: 700;
+        background: linear-gradient(45deg, #f39c12, #e74c3c);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .nav-link {
+        font-weight: 500;
+        margin: 0 5px;
+        transition: all 0.3s ease;
+        color: white !important;
+    }
+
+    .nav-link:hover {
+        transform: translateY(-2px);
+        color: var(--warning-color) !important;
+    }
+
+    .navbar-text {
+        color: #ecf0f1 !important;
+        font-style: italic;
+    }
+
+    /* ========== CONTAINER & CUSTOM VENUE CARD ========== */
+    .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 30px 32px;
+    }
+
+    /* hero header – adapted to dark theme */
+    .menu-hero {
+        background: rgba(255,255,245,0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 40px;
+        padding: 42px 32px;
+        text-align: center;
+        margin-bottom: 36px;
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .menu-hero h1 {
+        font-size: 2.6rem;
+        font-weight: 800;
+        color: white;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        margin-bottom: 10px;
+    }
+
+    .menu-hero h1 i {
+        color: #f39c12;
+        margin-right: 10px;
+    }
+
+    .menu-hero p {
+        color: #f0f0f0;
+        font-size: 1.05rem;
+    }
+
+    /* Search bar – light overlay */
+    .search-bar {
+        max-width: 660px;
+        margin: 24px auto 0;
+        position: relative;
+    }
+
+    .search-bar input {
+        width: 100%;
+        padding: 14px 50px 14px 24px;
+        border: 1.5px solid rgba(255,255,255,0.3);
+        border-radius: 60px;
+        font-size: 0.95rem;
+        background: rgba(255,255,255,0.9);
+        transition: 0.2s;
+        outline: none;
+    }
+
+    .search-bar input:focus {
+        border-color: #f39c12;
+        box-shadow: 0 0 0 3px rgba(243,156,18,0.2);
+        background: white;
+    }
+
+    .search-bar button {
+        position: absolute;
+        right: 50px;
+        top: 38px;
+        background: #d93f21;
+        border: none;
+        color: white;
+        padding: 8px 22px;
+        border-radius: 50px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: 0.2s;
+    }
+
+    .search-bar button:hover {
+        background: #bf351a;
+    }
+
+    /* Filters card – semi-transparent */
+    .filters-card {
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(8px);
+        border-radius: 32px;
+        padding: 28px;
+        margin-bottom: 38px;
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .filter-section h3 {
+        font-size: 1rem;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .category-filters, .sort-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .category-btn, .sort-btn {
+        padding: 8px 20px;
+        border: 1.5px solid rgba(255,255,255,0.4);
+        background: rgba(0,0,0,0.3);
+        border-radius: 40px;
+        font-size: 0.85rem;
+        font-weight: 550;
+        color: white;
+        text-decoration: none;
+        transition: 0.2s;
+    }
+
+    .category-btn i, .sort-btn i { margin-right: 6px; }
+
+    .category-btn:hover, .sort-btn:hover {
+        border-color: #f39c12;
+        color: #f39c12;
+        background: rgba(0,0,0,0.5);
+    }
+
+    .category-btn.active {
+        background: #d93f21;
+        color: white;
+        border-color: #d93f21;
+    }
+
+    .sort-btn.active {
+        background: #4ecdc4;
+        color: white;
+        border-color: #4ecdc4;
+    }
+
+    /* Venue grid (cards) – using your .card style */
+    .food-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+        gap: 32px;
+    }
+
+    .food-card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        border: none;
+    }
+
+    .food-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .food-image-container {
+        position: relative;
+        height: 240px;
+        background: #f9ede3;
+        overflow: hidden;
+    }
+
+    .food-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .food-card:hover .food-image {
+        transform: scale(1.05);
+    }
+
+    .food-badges {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        display: flex;
+        gap: 8px;
+    }
+
+    .badge {
+        padding: 5px 14px;
+        border-radius: 60px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        backdrop-filter: blur(4px);
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+    }
+
+    .badge-capacity {
+        background: rgba(52, 152, 219, 0.9);
+    }
+
+    .venue-category-tag {
+        position: absolute;
+        bottom: 14px;
+        left: 14px;
+        background: rgba(255, 255, 245, 0.95);
+        padding: 5px 14px;
+        border-radius: 40px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: #d93f21;
+    }
+
+    .food-info {
+        padding: 20px 22px 24px;
+    }
+
+    .food-name {
+        font-size: 1.45rem;
+        font-weight: 800;
+        margin-bottom: 6px;
+        color: #1f2f3c;
+    }
+
+    .food-description {
+        color: #6f8393;
+        font-size: 0.85rem;
+        margin-bottom: 16px;
+        line-height: 1.45;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .food-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .food-price {
+        font-size: 1.9rem;
+        font-weight: 800;
+        color: #d93f21;
+    }
+
+    .food-time {
+        color: #8c9aa8;
+        font-size: 0.8rem;
+    }
+
+    .btn-cart {
+        width: 100%;
+        background: #d93f21;
+        border: none;
+        padding: 12px;
+        border-radius: 60px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: white;
+        cursor: pointer;
+        transition: 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+
+    .btn-cart:hover {
+        background: #bf351a;
+        transform: translateY(-2px);
+    }
+
+    .no-results {
+        text-align: center;
+        padding: 70px 20px;
+        grid-column: 1/-1;
+        background: rgba(255,255,245,0.9);
+        border-radius: 48px;
+        color: #2c3e50;
+    }
+
+    .no-results i {
+        font-size: 4rem;
+        color: #d4c0b0;
+        margin-bottom: 20px;
+    }
+
+    @media (max-width: 768px) {
+        .container { padding: 16px; }
+        .food-grid { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="menu-hero">
+        <h1><i class="fas fa-building"></i> Find Your Perfect Venue</h1>
+        <p>Wedding halls, conference rooms, dining tables, and college fest spaces – all in one place</p>
+        <form method="GET" action="{% url 'venue_list' %}" class="search-bar">
+            <input type="text" name="search" placeholder="Search by name, location..." value="{{ search_query }}">
+            <button type="submit"><i class="fas fa-search"></i> Search</button>
+        </form>
+    </div>
+
+    <div class="filters-card">
+        <div class="filter-section">
+            <h3><i class="fas fa-tags"></i> Venue Type</h3>
+            <div class="category-filters">
+                <a href="{% url 'venue_list' %}" class="category-btn {% if not selected_type %}active{% endif %}">
+                    <i class="fas fa-th-large"></i> All
+                </a>
+                {% for type_value, type_label in venue_types %}
+                <a href="?type={{ type_value }}{% if sort_by %}&sort={{ sort_by }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" 
+                   class="category-btn {% if selected_type == type_value %}active{% endif %}">
+                    <i class="fas fa-{% if type_value == 'wedding_hall' %}heart{% elif type_value == 'conference_room' %}briefcase{% elif type_value == 'dining_table' %}utensils{% elif type_value == 'fest' %}music{% else %}building{% endif %}"></i>
+                    {{ type_label }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 20px; align-items: center;">
+            <div class="filter-section">
+                <h3><i class="fas fa-sort-amount-down-alt"></i> Sort By</h3>
+                <div class="sort-options">
+                    <a href="?{% if selected_type %}type={{ selected_type }}&{% endif %}sort=name{% if search_query %}&search={{ search_query }}{% endif %}" 
+                       class="sort-btn {% if sort_by == 'name' %}active{% endif %}"><i class="fas fa-font"></i> Name A-Z</a>
+                    <a href="?{% if selected_type %}type={{ selected_type }}&{% endif %}sort=price_per_hour{% if search_query %}&search={{ search_query }}{% endif %}" 
+                       class="sort-btn {% if sort_by == 'price_per_hour' %}active{% endif %}"><i class="fas fa-arrow-up-wide-short"></i> Price: Low to High</a>
+                    <a href="?{% if selected_type %}type={{ selected_type }}&{% endif %}sort=-price_per_hour{% if search_query %}&search={{ search_query }}{% endif %}" 
+                       class="sort-btn {% if sort_by == '-price_per_hour' %}active{% endif %}"><i class="fas fa-arrow-down-wide-short"></i> Price: High to Low</a>
+                    <a href="?{% if selected_type %}type={{ selected_type }}&{% endif %}sort=capacity{% if search_query %}&search={{ search_query }}{% endif %}" 
+                       class="sort-btn {% if sort_by == 'capacity' %}active{% endif %}"><i class="fas fa-users"></i> Capacity: Low to High</a>
+                    <a href="?{% if selected_type %}type={{ selected_type }}&{% endif %}sort=-capacity{% if search_query %}&search={{ search_query }}{% endif %}" 
+                       class="sort-btn {% if sort_by == '-capacity' %}active{% endif %}"><i class="fas fa-users"></i> Capacity: High to Low</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="food-grid">
+        {% for venue in venues %}
+        <div class="food-card">
+            <div class="food-image-container">
+                {% if venue.image %}
+                <img src="{{ venue.image.url }}" alt="{{ venue.name }}" class="food-image" loading="lazy">
+                {% else %}
+                <div style="width:100%; height:100%; background: linear-gradient(145deg, #fcedea, #ffe3d6); display:flex; align-items:center; justify-content:center; font-size:4rem; color:#d9b48b;">
+                    <i class="fas fa-building"></i>
+                </div>
+                {% endif %}
+                <div class="food-badges">
+                    <span class="badge badge-capacity">
+                        <i class="fas fa-users"></i> {{ venue.capacity }} guests
+                    </span>
+                </div>
+                <span class="venue-category-tag">
+                    <i class="fas fa-tag"></i> {{ venue.get_venue_type_display }}
+                </span>
+            </div>
+            <div class="food-info">
+                <h3 class="food-name">{{ venue.name }}</h3>
+                <p class="food-description">{{ venue.description|truncatechars:85 }}</p>
+                <div class="food-meta">
+                    <span class="food-price">₹{{ venue.price_per_hour }}<span style="font-size:0.9rem;">/hour</span></span>
+                    <span class="food-time"><i class="fas fa-map-marker-alt"></i> {{ venue.location|truncatechars:20 }}</span>
+                </div>
+                {% if user.is_authenticated %}
+                    {% if venue.is_available %}
+                    <a href="{% url 'create_booking' venue.id %}" class="btn-cart">
+                        <i class="fas fa-calendar-check"></i> Book Now
+                    </a>
+                    {% else %}
+                    <button class="btn-cart" style="background:#aaa; cursor:not-allowed;" disabled>
+                        <i class="fas fa-ban"></i> Unavailable
+                    </button>
+                    {% endif %}
+                {% else %}
+                <a href="{% url 'login' %}?next={% url 'venue_list' %}" class="btn-cart" style="background:#6c757d;">
+                    <i class="fas fa-lock"></i> Login to Book
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="no-results">
+            <i class="fas fa-search-slash"></i>
+            <h3>No venues found</h3>
+            <p>Try different keywords or reset filters</p>
+            <a href="{% url 'venue_list' %}" class="btn-cart" style="width:auto; padding:10px 28px; display:inline-flex;">View All Venues</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
